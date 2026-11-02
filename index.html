@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bekleme oyunları</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#e4e7ea; --panel:#d5dade; --ink:#1b2128; --dim:#5b6672; --line:#b9c1c8; --lit:#ffb000;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#12161c;--panel:#1a2129;--ink:#eef1f4;--dim:#8d99a6;--line:#2c3641;color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#12161c;--panel:#1a2129;--ink:#eef1f4;--dim:#8d99a6;--line:#2c3641;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'Chakra Petch',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  display:flex;flex-direction:column;justify-content:center;gap:18px;padding:24px 20px;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+h1{margin:0 0 4px;font-size:1.9rem;line-height:1.15}
+p.sub{margin:0 0 6px;color:var(--dim);font-size:1.05rem}
+a.card{
+  display:flex;align-items:center;gap:18px;text-decoration:none;color:inherit;
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;
+}
+a.card:active{transform:scale(.98)}
+a.card:focus-visible{outline:3px solid var(--lit);outline-offset:3px}
+.ic{flex:none;width:64px;height:64px}
+.t{display:block;font-size:1.35rem;font-weight:700}
+.d{display:block;color:var(--dim);font-size:.98rem;margin-top:2px}
+.r{display:block;color:var(--ink);font-size:.95rem;margin-top:8px}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#12161c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bekleme">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png" type="image/png">
+</head>
+<body>
+<div>
+  <h1>Bekleme oyunları</h1>
+  <p class="sub">Kısa bir bekleyişe sığan iki oyun.</p>
+</div>
+
+<a class="card" href="asansor.html">
+  <svg class="ic" viewBox="0 0 64 64" aria-hidden="true">
+    <circle cx="32" cy="32" r="22" fill="#ffb000"/>
+    <circle cx="32" cy="32" r="29" fill="none" stroke="#ffb000" stroke-opacity=".35" stroke-width="4"/>
+  </svg>
+  <span>
+    <span class="t">Asansör düğmesi</span>
+    <span class="d">Yanan düğmeye ne kadar erken basarsan o kadar çok puan.</span>
+    <span class="r" id="r1"></span>
+  </span>
+</a>
+
+<a class="card" href="yol.html">
+  <svg class="ic" viewBox="0 0 64 64" aria-hidden="true">
+    <rect x="6" y="4" width="52" height="56" rx="6" fill="#000"/>
+    <rect x="23" y="8" width="3" height="10" fill="#e9e4d0"/><rect x="38" y="8" width="3" height="10" fill="#e9e4d0"/>
+    <rect x="23" y="26" width="3" height="10" fill="#e9e4d0"/><rect x="38" y="26" width="3" height="10" fill="#e9e4d0"/>
+    <rect x="23" y="44" width="3" height="10" fill="#e9e4d0"/><rect x="38" y="44" width="3" height="10" fill="#e9e4d0"/>
+    <rect x="29" y="34" width="6" height="16" rx="3" fill="#ffb000"/>
+  </svg>
+  <span>
+    <span class="t">Sonsuz yol</span>
+    <span class="d">Üç şeritli trafikte motosikletle akıp giden bir yol.</span>
+    <span class="r" id="r2"></span>
+  </span>
+</a>
+
+<script>
+(function(){
+  function get(k){ try{ return parseInt(localStorage.getItem(k)||'0',10)||0; }catch(e){ return 0; } }
+  var d='30'; try{ d=localStorage.getItem('asansor-dur')||'30'; }catch(e){}
+  var a=get('asansor-best-'+d), b=get('sonsuz-best');
+  document.getElementById('r1').textContent=a>0?'Rekor: '+a+' puan ('+d+' sn)':'Henüz oynanmadı';
+  document.getElementById('r2').textContent=b>0?'Rekor: '+b+' puan':'Henüz oynanmadı';
+})();
+</script>
+<script>if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Asansör düğmesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#e4e7ea; --panel:#d5dade; --ink:#1b2128; --dim:#5b6672; --line:#b9c1c8;
+  --lit:#ffb000; --litink:#2a1c00;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#12161c;--panel:#1a2129;--ink:#eef1f4;--dim:#8d99a6;--line:#2c3641;color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#12161c;--panel:#1a2129;--ink:#eef1f4;--dim:#8d99a6;--line:#2c3641;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'Chakra Petch',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  display:flex;flex-direction:column;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+  overscroll-behavior:none;-webkit-tap-highlight-color:transparent;
+}
+header{display:flex;gap:10px;padding:14px 16px 10px}
+.cell{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.lab{display:block;font-size:.78rem;color:var(--dim);letter-spacing:.02em}
+.num{font-size:2rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+#t.low{color:var(--lit)}
+#field{position:relative;flex:1;margin:0 16px 16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.btn{
+  position:absolute;border-radius:50%;
+  background:#2fd070;color:#10200f;
+  box-shadow:0 0 0 6px rgba(47,208,112,.28),0 0 28px 6px rgba(47,208,112,.45);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:1.5rem;
+  transform:scale(.4);opacity:0;
+  transition:transform .12s ease-out,opacity .12s ease-out;
+}
+.btn.on{transform:scale(1);opacity:1}
+.btn.heat{animation:heat var(--life,1500ms) linear forwards}
+@keyframes heat{
+  0%{background:#2fd070;box-shadow:0 0 0 6px rgba(47,208,112,.28),0 0 28px 6px rgba(47,208,112,.45)}
+  50%{background:#ffc933;box-shadow:0 0 0 6px rgba(255,201,51,.28),0 0 28px 6px rgba(255,201,51,.45)}
+  100%{background:#f0443a;box-shadow:0 0 0 6px rgba(240,68,58,.28),0 0 28px 6px rgba(240,68,58,.45)}
+}
+.btn.pop{transform:scale(1.5);opacity:0;transition-duration:.14s}
+.btn.dim{transform:scale(.6);opacity:0;transition-duration:.25s}
+.gain{position:absolute;font-weight:700;font-size:1.3rem;color:var(--ink);pointer-events:none;animation:up .6s ease-out forwards}
+@keyframes up{to{transform:translateY(-36px);opacity:0}}
+#overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;padding:24px;text-align:center;background:var(--panel);
+}
+#overlay h1{margin:0;font-size:1.9rem;line-height:1.15}
+#overlay p{margin:0;color:var(--dim);max-width:26ch;line-height:1.45;font-size:1.05rem}
+#go{
+  margin-top:6px;border:0;border-radius:999px;background:var(--lit);color:var(--litink);
+  font:700 1.25rem 'Chakra Petch',system-ui,sans-serif;padding:16px 44px;
+  box-shadow:0 0 0 6px color-mix(in srgb,var(--lit) 28%,transparent);
+}
+#go:active{transform:scale(.96)}
+#go:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
+#dur{display:flex;gap:8px;margin-top:4px}
+#dur button{border:1px solid var(--line);background:var(--bg);color:var(--ink);font:500 1rem 'Chakra Petch',system-ui,sans-serif;padding:9px 16px;border-radius:999px}
+#dur button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:700}
+#dur button:focus-visible{outline:3px solid var(--lit);outline-offset:2px}
+.menu{color:var(--dim);font-size:1rem;padding:10px;text-decoration:underline}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){.btn,.btn.pop,.btn.dim{transition:none}.gain{animation:none;opacity:0}}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#12161c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bekleme">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png" type="image/png">
+</head>
+<body>
+<header>
+  <div class="cell"><span class="lab">Süre</span><span class="num" id="t">15</span></div>
+  <div class="cell"><span class="lab">Puan</span><span class="num" id="s">0</span></div>
+  <div class="cell"><span class="lab">Seri</span><span class="num" id="c">0</span></div>
+</header>
+<section id="field">
+  <div id="overlay">
+    <h1 id="ot">Asansörü bekliyorsun?</h1>
+    <p id="op">Yanan düğmelere sönmeden bas. 15 saniyede ne kadar yapabilirsin?</p>
+    <div id="dur" role="group" aria-label="Tur süresi">
+      <button type="button" data-d="15">15 sn</button>
+      <button type="button" data-d="30">30 sn</button>
+      <button type="button" data-d="60">60 sn</button>
+    </div>
+    <button id="go">Başla</button>
+    <a class="menu" href="index.html">Menüye dön</a>
+  </div>
+</section>
+<script>
+(function(){
+  var DUR=30, field=document.getElementById('field'), overlay=document.getElementById('overlay');
+  var tEl=document.getElementById('t'), sEl=document.getElementById('s'), cEl=document.getElementById('c');
+  var ot=document.getElementById('ot'), op=document.getElementById('op'), go=document.getElementById('go');
+  var score=0, combo=0, hits=0, left=DUR, running=false, lit=[], timer=null, spawnT=null, ctx=null, best=0;
+  try{ var sd=parseInt(localStorage.getItem('asansor-dur')||'30',10); if(sd===15||sd===30||sd===60){ DUR=sd; } }catch(e){}
+  function loadBest(){
+    best=0; try{ best=parseInt(localStorage.getItem('asansor-best-'+DUR)||'0',10)||0; }catch(e){}
+    op.textContent=best>0?'En yüksek puanın: '+best+'. Düğmeye ne kadar erken basarsan o kadar çok puan alırsın.':'Süreni seç. Düğmeye yeşilken basarsan 5 puan, kırmızıya dönünce 1 puan alırsın.';
+  }
+  var durBtns=document.querySelectorAll('#dur button');
+  function markDur(){
+    left=DUR; tEl.textContent=DUR;
+    durBtns.forEach(function(b){ b.setAttribute('aria-pressed',String(parseInt(b.dataset.d,10)===DUR)); });
+  }
+  durBtns.forEach(function(b){
+    b.addEventListener('click',function(){
+      DUR=parseInt(b.dataset.d,10);
+      try{ localStorage.setItem('asansor-dur',String(DUR)); }catch(e){}
+      markDur(); loadBest();
+    });
+  });
+  markDur(); loadBest();
+
+  function ding(n){
+    try{
+      if(!ctx){ ctx=new (window.AudioContext||window.webkitAudioContext)(); }
+      if(ctx.state==='suspended'){ ctx.resume(); }
+      var o=ctx.createOscillator(), g=ctx.createGain();
+      o.type='sine'; o.frequency.value=660+Math.min(n,12)*45;
+      g.gain.setValueAtTime(.0001,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.18,ctx.currentTime+.01);
+      g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.18);
+      o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+.2);
+    }catch(e){}
+  }
+  function buzz(ms){ try{ if(navigator.vibrate){ navigator.vibrate(ms); } }catch(e){} }
+  function hud(){ sEl.textContent=score; cEl.textContent=combo; tEl.textContent=Math.ceil(left); tEl.classList.toggle('low',left<=5); }
+
+  function place(size){
+    var w=field.clientWidth, h=field.clientHeight, m=14;
+    for(var i=0;i<14;i++){
+      var x=m+Math.random()*(w-size-2*m), y=m+Math.random()*(h-size-2*m), ok=true;
+      for(var j=0;j<lit.length;j++){
+        var b=lit[j]; if(Math.abs(b.x-x)<size*1.25 && Math.abs(b.y-y)<size*1.25){ ok=false; break; }
+      }
+      if(ok){ return {x:x,y:y}; }
+    }
+    return null;
+  }
+  function gain(x,y,txt){
+    var g=document.createElement('div'); g.className='gain'; g.textContent=txt;
+    g.style.left=x+'px'; g.style.top=y+'px'; field.appendChild(g);
+    setTimeout(function(){ g.remove(); },650);
+  }
+  function drop(b){ var i=lit.indexOf(b); if(i>-1){ lit.splice(i,1); } }
+
+  function pts(b){ var r=Math.max(0,1-(performance.now()-b.t0)/b.life); return 1+Math.round(r*4); }
+  function spawn(){
+    if(!running){ return; }
+    if(lit.length<3){
+      var size=Math.round(Math.min(92,Math.max(68,field.clientWidth*.2)));
+      var p=place(size);
+      if(p){
+        var el=document.createElement('div'); el.className='btn heat';
+        el.style.width=el.style.height=size+'px'; el.style.left=p.x+'px'; el.style.top=p.y+'px';
+        var life=Math.max(800,1600-hits*25);
+        el.style.setProperty('--life',life+'ms'); el.textContent='5';
+        var b={el:el,x:p.x,y:p.y,size:size,done:false,life:life,t0:performance.now()};
+        el.addEventListener('pointerdown',function(ev){
+          ev.preventDefault();
+          if(b.done||!running){ return; }
+          b.done=true; drop(b); clearTimeout(b.to);
+          var add=pts(b)+Math.floor(combo/5); combo++; hits++; score+=add;
+          ding(combo); buzz(12); hud();
+          gain(b.x+size/2-10,b.y+size/2-10,'+'+add);
+          el.classList.add('pop'); setTimeout(function(){ el.remove(); },160);
+        });
+        field.appendChild(el); lit.push(b);
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('on'); }); });
+        b.to=setTimeout(function(){
+          if(b.done){ return; }
+          b.done=true; drop(b); combo=0; hud();
+          el.classList.remove('on'); el.classList.add('dim'); setTimeout(function(){ el.remove(); },280);
+        },life);
+      }
+    }
+    spawnT=setTimeout(spawn,Math.max(300,650-hits*8));
+  }
+
+  function start(){
+    score=0; combo=0; hits=0; left=DUR; running=true;
+    lit.forEach(function(b){ b.el.remove(); }); lit=[];
+    overlay.classList.add('hidden'); hud();
+    try{ if(!ctx){ ctx=new (window.AudioContext||window.webkitAudioContext)(); } if(ctx.state==='suspended'){ ctx.resume(); } }catch(e){}
+    var last=Date.now();
+    timer=setInterval(function(){
+      var now=Date.now(); left-=(now-last)/1000; last=now;
+      lit.forEach(function(b){ if(!b.done){ b.el.textContent=pts(b); } });
+      if(left<=0){ left=0; finish(); } hud();
+    },100);
+    spawn();
+  }
+  function finish(){
+    running=false; clearInterval(timer); clearTimeout(spawnT);
+    lit.forEach(function(b){ clearTimeout(b.to); b.el.remove(); }); lit=[];
+    var rec=score>best;
+    if(rec){ best=score; try{ localStorage.setItem('asansor-best-'+DUR,String(best)); }catch(e){} }
+    ot.textContent='Asansör geldi!';
+    op.textContent=score+' puan. '+(rec&&score>0?'Yeni rekor!':'En yüksek puanın: '+best+'.');
+    go.textContent='Tekrar oyna';
+    overlay.classList.remove('hidden');
+    buzz([30,40,30]);
+  }
+  go.addEventListener('click',start);
+  hud();
+})();
+</script>
+<script>if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>
